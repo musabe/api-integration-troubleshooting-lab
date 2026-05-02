@@ -2,6 +2,7 @@
 
 > A hands-on FastAPI lab that reproduces real-world API integration failures — including authentication issues, payload validation errors, webhook signature problems, and timeout scenarios — with a client script to simulate and debug each case.
 
+![CI](https://github.com/musabe/api-integration-troubleshooting-lab/actions/workflows/ci.yml/badge.svg)
 ![Language](https://img.shields.io/badge/language-Python-blue?style=flat-square)
 ![Framework](https://img.shields.io/badge/framework-FastAPI-green?style=flat-square)
 ![Status](https://img.shields.io/badge/status-active-brightgreen?style=flat-square)
@@ -10,7 +11,15 @@
 
 ## 🎯 Overview
 
-This project simulates a real-world API used in SaaS integrations and provides a controlled environment to reproduce and diagnose common integration failures. It is designed for Developer Support Engineers, API / Integration Engineers, and Technical Support teams who need to practice debugging workflows and build repeatable troubleshooting runbooks.
+This project simulates a real-world API used in SaaS integrations and provides a controlled environment to reproduce and diagnose common integration failures.
+
+It is designed for:
+
+- Developer Support Engineers
+- API / Integration Engineers
+- Technical Support teams
+
+The goal is to practice debugging workflows and build repeatable troubleshooting runbooks.
 
 ---
 
@@ -26,7 +35,11 @@ Common problems include:
 - Timeouts and retry issues
 - Misconfigured clients
 
-This lab shifts debugging **left** by letting you reproduce failures in a controlled environment, understand how APIs behave under error conditions, and build repeatable troubleshooting runbooks.
+This lab shifts debugging **left** by letting you:
+
+- Reproduce failures in a controlled environment
+- Understand API behavior under error conditions
+- Build repeatable troubleshooting workflows
 
 ---
 
@@ -180,7 +193,7 @@ All tests must pass before changes are considered valid.
 | Webhook simulation | ✅ Done |
 | Timeout / retry scenarios | ✅ Done |
 | Client script | ✅ Done |
-| Runbooks | 🔜 Planned |
+| Runbooks | 🔄 In Progress |
 | Retry logic with backoff | 🔜 Planned |
 | Rate limiting / 429 scenarios | 🔜 Planned |
 | Docker support | 🔜 Planned |
