@@ -4,3 +4,4 @@ requests
 pytest
 python-dotenv
 email-validator
+httpx
