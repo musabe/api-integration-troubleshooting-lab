@@ -156,6 +156,20 @@ Client-side timeout occurred
 
 ---
 
+## ✅ CI Status
+
+This project includes a GitHub Actions pipeline that:
+
+- Installs dependencies
+- Runs API tests using pytest
+- Validates authentication, validation, and webhook scenarios
+
+All tests must pass before changes are considered valid.
+
+![CI](https://github.com/musabe/api-integration-troubleshooting-lab/actions/workflows/ci.yml/badge.svg)
+
+---
+
 ## 🚧 Status
 
 | Feature | Status |
