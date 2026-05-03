@@ -32,7 +32,7 @@ What This Client Tests
    - Calls a deliberately slow endpoint
    - Demonstrates timeout handling from the client side
 
-How It’s Used
+How It's Used
 -------------
 1. Start the API:
    uvicorn src.app:app --reload
@@ -311,6 +311,13 @@ def run_webhook_scenarios(order_id: Optional[str]) -> None:
         payload,
         signature=valid_signature,
         label="Valid webhook signature",
+    )
+
+    # Duplicate webhook (simulate retry / re-delivery)
+    send_payment_webhook(
+        payload,
+        signature=valid_signature,
+        label="Duplicate webhook (should not reprocess)",
     )
 
 

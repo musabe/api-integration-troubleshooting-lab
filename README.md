@@ -19,7 +19,7 @@ It is designed for:
 - API / Integration Engineers
 - Technical Support teams
 
-The goal is to practice debugging workflows and build repeatable troubleshooting runbooks.
+The goal is to practice debugging workflows and build repeatable troubleshooting runbooks, including production-style guides for authentication, payload validation, webhook failures, and idempotency handling.
 
 ---
 
@@ -57,24 +57,38 @@ This lab shifts debugging **left** by letting you:
 
 ```
 api-integration-troubleshooting-lab/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── docs/
+│   ├── api-error-troubleshooting.md
+│   ├── oauth-debugging.md
+│   └── webhook-debugging.md
+├── examples/
+│   ├── sample-api-errors.md
+│   ├── sample_error_response.json
+│   └── sample_payload.json
+├── runbooks/
+│   ├── api_error_troubleshooting.md
+│   ├── idempotency_debugging_runbook.md
+│   ├── oauth_debugging_runbook.md
+│   └── webhook_debugging_runbook.md
+├── scenarios/
+│   ├── duplicate_webhook_idempotency_failure.md
+│   ├── oauth_invalid_token.md
+│   ├── payload_validation_error.md
+│   ├── timeout_retry_issue.md
+│   └── webhook_signature_failure.md
 ├── src/
+│   ├── __init__.py
 │   ├── app.py              # FastAPI service with failure scenarios
 │   ├── client.py           # Client script to reproduce issues
 │   ├── config.py
 │   └── logger.py
-├── scenarios/
-│   ├── oauth_invalid_token.md
-│   ├── webhook_signature_failure.md
-│   ├── payload_validation_error.md
-│   └── timeout_retry_issue.md
-├── runbooks/
-│   ├── oauth_debugging_runbook.md
-│   ├── webhook_debugging_runbook.md
-│   └── api_error_troubleshooting.md
 ├── tests/
-├── examples/
-│   ├── sample_payload.json
-│   └── sample_error_response.json
+│   ├── test_api.py
+│   └── test_placeholder.py
+├── pytest.ini
 ├── README.md
 └── requirements.txt
 ```
@@ -126,7 +140,28 @@ python src/client.py
 | Missing webhook signature | No header | `401` |
 | Invalid webhook signature | Wrong hash | `401` |
 | Resource not found | Bad ID | `404` |
+| Duplicate webhook / idempotency | Same event sent twice | Safe skip (`duplicate=true`) |
 | Slow endpoint / timeout | Delay injection | Client timeout |
+
+---
+
+## 📚 Runbooks
+
+This project includes structured troubleshooting runbooks for common API failures:
+
+- [Webhook Signature Debugging](runbooks/webhook_debugging_runbook.md)
+- [OAuth / Bearer Token Debugging](runbooks/oauth_debugging_runbook.md)
+- [Payload Validation Error Debugging](runbooks/api_error_troubleshooting.md)
+- [Duplicate Webhook / Idempotency](runbooks/idempotency_debugging_runbook.md)
+
+Each runbook provides:
+
+- Step-by-step debugging workflow
+- Root cause analysis guidance
+- Reproduction steps using the client
+- Practical resolution checklist
+
+👉 These reflect real-world support and developer troubleshooting processes.
 
 ---
 
@@ -179,8 +214,6 @@ This project includes a GitHub Actions pipeline that:
 
 All tests must pass before changes are considered valid.
 
-![CI](https://github.com/musabe/api-integration-troubleshooting-lab/actions/workflows/ci.yml/badge.svg)
-
 ---
 
 ## 🚧 Status
@@ -193,17 +226,31 @@ All tests must pass before changes are considered valid.
 | Webhook simulation | ✅ Done |
 | Timeout / retry scenarios | ✅ Done |
 | Client script | ✅ Done |
-| Runbooks | 🔄 In Progress |
+| Runbooks | ✅ Core Runbooks Complete |
 | Retry logic with backoff | 🔜 Planned |
 | Rate limiting / 429 scenarios | 🔜 Planned |
 | Docker support | 🔜 Planned |
 
 ---
 
+## 🔧 How This Maps to Real Systems
+
+The scenarios in this lab reflect common failures seen in:
+
+- Stripe / payment webhooks
+- GitHub / GitLab integrations
+- SaaS API integrations
+- API gateway authentication flows
+- Partner onboarding environments
+
+This makes the lab directly applicable to real production debugging scenarios.
+
+---
+
 ## 👤 Author
 
-**Mustapha Abella**
-Senior Technical Support Engineer
-Focused on API-driven SaaS, data integration, and developer-facing support
+**Mustapha Abella**  
+Senior Technical Support Engineer  
+Focused on API-driven SaaS, data integration, and developer-facing support  
 
 [github.com/musabe](https://github.com/musabe)
