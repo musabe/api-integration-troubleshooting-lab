@@ -173,3 +173,45 @@ def test_slow_endpoint_rejects_large_delay():
 
     assert response.status_code == 400
     assert response.json()["detail"]["error"] == "delay_too_large"
+    
+def test_webhook_idempotency_duplicate_event():
+    # Create order first
+    create_resp = client.post(
+        "/api/orders",
+        headers={"Authorization": "Bearer demo-valid-token"},
+        json={
+            "customer_email": "test@example.com",
+            "product_id": "SKU-001",
+            "quantity": 1,
+        },
+    )
+
+    order_id = create_resp.json()["order_id"]
+
+    payload = {
+        "event_id": "evt_test_123",
+        "type": "payment.succeeded",
+        "order_id": order_id,
+    }
+
+    signature = build_signature(payload)
+
+    # First webhook (should process)
+    resp1 = client.post(
+        "/webhooks/payment",
+        headers={"X-Webhook-Signature": signature},
+        data=json.dumps(payload),
+    )
+
+    assert resp1.status_code == 200
+    assert resp1.json()["duplicate"] is False
+
+    # Second webhook (duplicate)
+    resp2 = client.post(
+        "/webhooks/payment",
+        headers={"X-Webhook-Signature": signature},
+        data=json.dumps(payload),
+    )
+
+    assert resp2.status_code == 200
+    assert resp2.json()["duplicate"] is True    

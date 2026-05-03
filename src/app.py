@@ -16,41 +16,11 @@ The goal of this lab is to help engineers and technical support teams:
 What This App Simulates
 -----------------------
 1. Authentication failures (OAuth / Bearer token)
-   - Missing Authorization header
-   - Invalid or expired tokens
-
 2. Payload validation errors
-   - Missing required fields
-   - Invalid data formats (e.g., email)
-   - Business logic constraints
-
 3. Webhook integration issues
-   - Missing or invalid HMAC signature
-   - Malformed JSON payloads
-   - Unsupported event types
-
-4. Data retrieval issues
-   - Resource not found (404)
-   - Unauthorized access
-
-5. Performance / reliability problems
-   - Slow endpoints (timeout simulation)
-   - Retry scenarios
-
-How It’s Used
--------------
-- Used alongside client scripts to simulate real API interactions
-- Paired with scenarios/ and runbooks/ to practice debugging
-- Helps demonstrate API troubleshooting skills for:
-  - Developer support roles
-  - Data platform engineering
-  - SaaS integration debugging
-
-Important Notes
----------------
-- Uses in-memory storage (not production-safe)
-- Tokens and secrets are hardcoded for demo purposes
-- Designed for local testing only
+4. Duplicate webhook / idempotency failures
+5. Data retrieval issues
+6. Performance / reliability problems
 
 Run Locally
 -----------
@@ -81,6 +51,10 @@ WEBHOOK_SECRET = "demo-webhook-secret"
 
 # In-memory storage for lab purposes.
 ORDERS = {}
+
+# Tracks processed webhook event IDs to prevent duplicate processing.
+# This simulates idempotency protection used in real webhook consumers.
+PROCESSED_EVENTS = set()
 
 
 class OrderCreate(BaseModel):
@@ -258,6 +232,7 @@ async def payment_webhook(
     - Invalid signature
     - Malformed JSON payload
     - Unknown event type
+    - Duplicate webhook event / idempotency handling
     """
     payload = await request.body()
 
@@ -274,6 +249,7 @@ async def payment_webhook(
             },
         )
 
+    event_id = event.get("event_id")
     event_type = event.get("type")
     order_id = event.get("order_id")
 
@@ -286,14 +262,38 @@ async def payment_webhook(
             },
         )
 
+    # Idempotency protection:
+    # If this webhook event was already processed, return success but skip processing.
+    # This matches common webhook best practice: duplicate delivery should be safe.
+    if event_id and event_id in PROCESSED_EVENTS:
+        print(f"[DEBUG] Duplicate event detected: {event_id}")
+
+        return {
+            "received": True,
+            "duplicate": True,
+            "message": "Webhook event already processed.",
+            "event_id": event_id,
+            "event_type": event_type,
+            "order_id": order_id,
+        }
+
     if order_id and order_id in ORDERS:
         if event_type == "payment.succeeded":
+            print(f"[DEBUG] Processing payment.succeeded for {order_id}")
             ORDERS[order_id]["status"] = "paid"
+
         elif event_type == "payment.failed":
+            print(f"[DEBUG] Processing payment.failed for {order_id}")
             ORDERS[order_id]["status"] = "payment_failed"
+
+    # Mark event as processed only after successful handling.
+    if event_id:
+        PROCESSED_EVENTS.add(event_id)
 
     return {
         "received": True,
+        "duplicate": False,
+        "event_id": event_id,
         "event_type": event_type,
         "order_id": order_id,
     }
